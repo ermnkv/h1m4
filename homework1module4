@@ -1,0 +1,50 @@
+public class Counter {
+    private int count;
+
+    public synchronized void increment() {
+        count++;
+    }
+
+    public int getValue() {
+        return count;
+    }
+}
+
+создаем два потока, которые вызывают метод increment() объекта Counter 1000 раз каждый:
+
+public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        Counter counter = new Counter();
+
+        Thread thread1 = new Thread(() -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.increment();
+            }
+        });
+
+        Thread thread2 = new Thread(() -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.increment();
+            }
+        });
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+
+        System.out.println("Значение count: " + counter.getValue());
+    }
+}
+
+я создала два потока, используя лямбда-выражения для определения их поведения. 
+  Каждый поток вызывает метод increment() объекта Counter 1000 раз.
+
+При запуске программы результат может быть разным при каждом 
+запуске из-за race condition. Race condition возникает, когда два или
+  более потока пытаются одновременно выполнить доступ или изменение общих данных. 
+  В моем случае, при одновременном выполнении инкремента, может возникнуть ситуация, 
+  когда один поток перезапишет изменения другого потока, что приведет к неправильному результату.
+  Чтобы избежать race condition, я пометила метод increment() как synchronized, чтобы гарантировать, что только
+  один поток сможет изменять count в определенный момент времени.
